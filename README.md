@@ -1,7 +1,7 @@
 # Predicting-Binding-Energies-of-Astrochemically-Relevant-Molecules-via-Machine-Learning
-Supporting repository to the article containing everything necessary to replicate and/or further expand on the work.
+Supporting repository to the article, containing everything necessary to replicate and/or further expand on the work.
 
-First download all six files from the repository and save them in the same folder. 
+First download all six files from the repository to the same folder. 
 
 'GPRPredictAndValidate.py' is the main program. It is used to predict the BE of new molecules and validate the performance of the model.
 
