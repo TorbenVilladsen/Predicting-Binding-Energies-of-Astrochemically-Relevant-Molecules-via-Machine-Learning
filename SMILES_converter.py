@@ -14,7 +14,7 @@ LayerType = 'mono'
 
 # Import data
 data = pd.read_excel(r'Data_set_BEs.xlsx')
-Rows = 855
+Rows = 300
 df = data.head(Rows)
 
 df = df[(df['Ebin (K)'] > 1)]
@@ -41,6 +41,7 @@ Name = df["Name"].values.tolist()
 
 
 # Guide for this program https://stackoverflow.com/questions/54930121/converting-molecule-name-to-smiles
+# Note, sometimes the website is temporally down, but just wait a few hours
 def CIRconvert(ids):
     try:
         url = 'http://cactus.nci.nih.gov/chemical/structure/' + quote(ids) + '/smiles'
@@ -49,6 +50,7 @@ def CIRconvert(ids):
     except:
         return 'Did not work'
 
+# If 'Did not work' is returned, restart the program
 
 identifiers = Name
 index = 0

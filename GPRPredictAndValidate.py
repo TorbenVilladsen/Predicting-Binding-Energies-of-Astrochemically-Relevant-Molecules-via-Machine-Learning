@@ -31,7 +31,7 @@ df = data.head(Rows)
 # Exclude rows with no binding energy
 df = df[(df['Ebin (K)'] > 1)]
 
-# Exclude all energies abbove 6500 K for multilayer
+# Exclude all energies abbove 6700 K for multilayer
 if LayerType == 'multi':
     df = df[(df['Ebin (K)'] < 6700)]
 
@@ -41,7 +41,7 @@ if LayerType == 'mono':
 elif LayerType == 'multi':
     df = df[(df["Multi / Mono"].isin(["Multi"]))]
 
-# Only include the pure mixture
+# Only include the pure depositions
 df = df[(df["Mixed/Pure"].isin(["Pure"]))]
 
 # Only include the four most popular surfaces
@@ -113,7 +113,7 @@ if LayerType == 'mono':
 
     one_hot_encoded_dataframe[data_columns[:-1]] = scaler.fit_transform(df[data_columns[:-1]])
 
-    print(one_hot_encoded_dataframe)
+    print(one_hot_encoded_dataframe.shape)
 
 # same for multilayer
 elif LayerType == 'multi':
@@ -135,7 +135,7 @@ if SplitType == 'kfold':
     index = 0
     k = 5
     n = 1
-    rs = 7
+    rs = 29
     rkf = RepeatedKFold(n_splits=k, n_repeats=n, random_state=rs)
 
     Ebin = np.array(Ebin)
@@ -172,46 +172,50 @@ if SplitType == 'kfold':
     print("Random state =", rs, ", k = ", k, ", n =", n, "W constant")
 
 
-# SMILES https://cactus.nci.nih.gov/chemical/structure
-# ValE calc http://www.scbdd.com/rdk_desc/index/
+# Get SMILES from here https://cactus.nci.nih.gov/chemical/structure
+# Get RDKit feature values from here http://www.scbdd.com/rdk_desc/index/
 #
 if SplitType == 'predict':
+    # Feature data for molecules used in the article
+
+    # New predictions
                                                                                           # C,   H,   O,   N,   Cl, CO,  OH,  COO, OO,  NH2,  CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "1", "2", "0", "2", "0", "0", "0", "0", "0", "1", "1", "0", "42", "5", "16", "2", "1", "49.81"         # Cyanamide     NH2CN
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "2", "5", "0", "1", "0", "0", "0", "0", "0", "0", "0", "0", "43", "8", "20", "1", "1", "26.02"         # Ethanimine   C2H4NH
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "2", "4", "1", "0", "0", "0", "1", "0", "0", "0", "0", "0", "44", "7", "18", "1", "1", "20.23"         # vinylalcohol        CH2=CHOH
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "3", "3", "0", "1", "0", "0", "0", "0", "0", "0", "0", "0", "53", "7", "20", "1", "1", "23.85"         # Propargylimine   HC3HNH
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "2", "2", "0", "2", "0", "0", "0", "0", "0", "0", "1", "0", "54", "7", "20", "2", "1", "47.64"         # Cyanomethanimine   NHCHCN
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "2", "3", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "57", "7", "22", "2", "0", "29.43"         # Methyl isocyanate   C2H3NO
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "2", "5", "1", "1", "0", "0", "0", "0", "0", "0", "0", "1", "59", "9", "24", "1", "1", "43.09"         # Acetamide           CH3CONH2
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "2", "5", "1", "1", "0", "0", "0", "0", "0", "0", "0", "1", "59", "9", "24", "1", "1", "29.1"          # N-methylformamide   C2H5NO   redo
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "1", "4", "1", "2", "0", "0", "0", "0", "0", "0", "0", "2", "60", "8", "24", "1", "2", "69.11"         # Urea                CH4N2O
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "2", "4", "2", "0", "0", "0", "2", "0", "0", "0", "0", "0", "60", "8", "24", "2", "2", "40.46"         # ethenediol          HOCH=CHOH
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "2", "7", "1", "1", "0", "0", "1", "0", "0", "1", "0", "0", "61", "11", "26", "2", "2", "46.25"        # Ethanolamine     C2H7NO
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "5", "4", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "64", "9", "24", "0", "0", "0"             # Allenyl acetylene    H2CCCHCCH
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "4", "3", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "65", "8", "24", "1", "0", "23.79"         # Propargyl cyanide     CH3C3N
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "4", "3", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "65", "8", "24", "1", "0", "23.79"         # Cyanoallene         C4H3N
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "4", "3", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "65", "8", "24", "1", "0", "23.79"         # Cynaopropyne        CH3C3N
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "4", "7", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "69", "12", "28", "1", "0", "23.79"        # Propylcyanide       C3H7CN
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "3", "6", "2", "0", "0", "1", "1", "0", "0", "0", "0", "0", "74", "11", "30", "2", "1", "37.30"        # hydroxyacetone     CH3COCH2OH
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "1", "2", "0", "2", "0", "0", "0", "0", "0", "1", "1", "0", "42", "5", "16", "2", "1", "49.81"         # Cyanamide               NH2CN
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "2", "5", "0", "1", "0", "0", "0", "0", "0", "0", "0", "0", "43", "8", "20", "1", "1", "26.02"         # Ethanimine              C2H4NH
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "2", "4", "1", "0", "0", "0", "1", "0", "0", "0", "0", "0", "44", "7", "18", "1", "1", "20.23"         # vinylalcohol            CH2=CHOH
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "3", "3", "0", "1", "0", "0", "0", "0", "0", "0", "0", "0", "53", "7", "20", "1", "1", "23.85"         # Propargylimine          HC3HNH
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "2", "2", "0", "2", "0", "0", "0", "0", "0", "0", "1", "0", "54", "7", "20", "2", "1", "47.64"         # Cyanomethanimine        NHCHCN
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "2", "3", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "57", "7", "22", "2", "0", "29.43"         # Methyl isocyanate       C2H3NO
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "2", "5", "1", "1", "0", "0", "0", "0", "0", "0", "0", "1", "59", "9", "24", "1", "1", "43.09"         # Acetamide               CH3CONH2
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "2", "5", "1", "1", "0", "0", "0", "0", "0", "0", "0", "1", "59", "9", "24", "1", "1", "29.1"          # N-methylformamide       C2H5NO
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "1", "4", "1", "2", "0", "0", "0", "0", "0", "0", "0", "2", "60", "8", "24", "1", "2", "69.11"         # Urea                    CH4N2O
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "2", "4", "2", "0", "0", "0", "2", "0", "0", "0", "0", "0", "60", "8", "24", "2", "2", "40.46"         # ethenediol              HOCH=CHOH
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "2", "7", "1", "1", "0", "0", "1", "0", "0", "1", "0", "0", "61", "11", "26", "2", "2", "46.25"        # Ethanolamine            C2H7NO
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "5", "4", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "64", "9", "24", "0", "0", "0"             # Allenyl acetylene       H2CCCHCCH
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "4", "3", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "65", "8", "24", "1", "0", "23.79"         # Propargyl cyanide       CH3C3N
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "4", "3", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "65", "8", "24", "1", "0", "23.79"         # Cyanoallene             C4H3N
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "4", "3", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "65", "8", "24", "1", "0", "23.79"         # Cynaopropyne            CH3C3N
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "4", "7", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "69", "12", "28", "1", "0", "23.79"        # Propylcyanide           C3H7CN
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "3", "6", "2", "0", "0", "1", "1", "0", "0", "0", "0", "0", "74", "11", "30", "2", "1", "37.30"        # hydroxyacetone          CH3COCH2OH
     # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "5", "3", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "77", "9", "28", "1", "0", "23.79"         # Cyanovinylacetylene     HCCCHCHCN  (Vinylcyanoacetylene)
     # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "6", "3", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "89", "10", "28", "1", "0", "23.79"        # Methylcyanodiacetylene  CH3C5N
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "6", "3", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "89", "10", "36", "1", "0", "23.79"        # Cyanoacetyleneallene H2CCCHC3N    ny m
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "6", "5", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "91", "12", "34", "1", "0", "20.23"        # cyano-1,3-cyclopentadiene c-C5H5CN
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "7", "1", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "99", "9", "34", "1", "0", "23.79"         # Cyanotriacetylene     HC7N
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "6", "3", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "89", "10", "36", "1", "0", "23.79"        # Cyanoacetyleneallene    H2CCCHC3N
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "6", "5", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "91", "12", "34", "1", "0", "20.23"        # cyano-cyclopentadiene   c-C5H5CN
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "7", "1", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "99", "9", "34", "1", "0", "23.79"         # Cyanotriacetylene       HC7N
     # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "9", "1", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "123", "11", "42", "1", "0", "23.79"       # Cyanotetraacetylene     HC9N
     # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "11", "1", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "147", "13", "50", "1", "0", "23.79"      # Cyanopentaacetylene     HC11N
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "9", "8", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "116", "17", "44", "0", "0", "0"           # indene              c-C9H8
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "9", "8", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "116", "17", "44", "0", "0", "0"           # indene                  c-C9H8
 
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "1", "3", "2", "1", "0", "1", "1", "0", "0", "0", "1", "0", "61", "7", "24", "1", "2", "63.32"         # Carbamic acid       H2NCOOH
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "29", "60", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "408", "89", "176", "0", "0", "0"        # C29H60
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "3", "6", "1", "0", "0", "1", "0", "0", "0", "0", "0", "0", "58", "10", "24", "1", "0", "17.07"        # Acetone  CH3COCH3
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "2", "3", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "41", "6", "16", "1", "0", "23.79"         # Acetonitile    CH3CN
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "2", "4", "2", "0", "0", "0", "0", "1", "0", "0", "0", "0", "60", "8", "24", "2", "0", "26.3"          # Methyl formate   CH3OCHO
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "5", "6", "2", "2", "0", "0", "0", "0", "0", "0", "0", "1", "126", "15", "48", "2", "2", "65.72"       # Thymine   C5H6N2O2
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "0", "3", "0", "1", "0", "0", "0", "0", "0", "0", "0", "0", "17", "4", "8", "1", "1", "35"             # NH3
-    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "1", "4", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "16", "5", "8", "0", "0", "0"             # CH4
-    C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "3", "6", "1", "0", "0", "0", "1", "0", "0", "0", "0", "0", "58", "10", "24", "1", "1", "20.23"             # CH4
+    # Leave-one-out-cross-validation
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "1", "3", "2", "1", "0", "1", "1", "0", "0", "0", "1", "0", "61", "7", "24", "1", "2", "63.32"         # Carbamic acid           H2NCOOH
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "29", "60", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "408", "89", "176", "0", "0", "0"        # Nonacosane              C29H60
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "3", "6", "1", "0", "0", "1", "0", "0", "0", "0", "0", "0", "58", "10", "24", "1", "0", "17.07"        # Acetone                 CH3COCH3
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "2", "3", "0", "1", "0", "0", "0", "0", "0", "0", "1", "0", "41", "6", "16", "1", "0", "23.79"         # Acetonitile             CH3CN
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "2", "4", "2", "0", "0", "0", "0", "1", "0", "0", "0", "0", "60", "8", "24", "2", "0", "26.3"          # Methyl formate          CH3OCHO
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "5", "6", "2", "2", "0", "0", "0", "0", "0", "0", "0", "1", "126", "15", "48", "2", "2", "65.72"       # Thymine                 C5H6N2O2
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "0", "3", "0", "1", "0", "0", "0", "0", "0", "0", "0", "0", "17", "4", "8", "1", "1", "35"             # Ammonia                 NH3
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "1", "4", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "16", "5", "8", "0", "0", "0"              # Methane                 CH4
+    # C, H, O, N, Cl, CO, OH, COO, OO, NH2, CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA = "3", "6", "1", "0", "0", "0", "1", "0", "0", "0", "0", "0", "58", "10", "24", "1", "1", "20.23"        # Allyl alcohol           C3H5OH
                                                                                           # C,   H,   O,   N,   Cl, CO,  OH,  COO, OO,  NH2,  CN, NCO, Mass, N_atoms, ValE, HBA, HBD, TPSA
 
     data_columns = ['C', 'H', 'O', 'N', 'Cl', 'OH', 'CO', 'COO', 'OO', 'NH2', 'CN', 'NCO', 'Mass', 'N_atoms', 'ValE', 'HBA', 'HBD', 'TPSA']
@@ -222,6 +226,7 @@ if SplitType == 'predict':
 
     df = pd.DataFrame(df, columns=data_columns)
 
+    # Here you choose what surface to predict the BE from. Type either ('carbon', 'metal', 'si', 'water')
     if LayerType == 'mono':
         df1 = pd.get_dummies(pd.DataFrame({'Surface': ['metal']}))
 
