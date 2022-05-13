@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.font_manager as font_manager
 
-# Do you want SMILES for 'mono' or 'multi'?
+# Do you want plot for 'mono' or 'multi'?
 LayerType = 'mono'
 
 # tfont = {'fontname':'Times New Roman'}
@@ -51,18 +51,18 @@ if LayerType == 'mono':
     ax2.tick_params(axis='y', labelsize=18)
 
     ax1.legend(loc="upper left", prop=font)
-    plt.text(1.7, 7100, "RMSE = 924 (K)",   **tfont, weight='bold', fontsize=24, color='0')
+    plt.text(1.7, 7100, "RMSE = 892 (K)",   **tfont, weight='bold', fontsize=24, color='0')
     # plt.text(0.8, 3600, "RMSE = 957 (K)",   **tfont, weight='bold', fontsize=24, color='0')
-    plt.text(2.2, 4500, "= 0.080 (eV)",      **tfont, weight='bold', fontsize=24, color='0')
+    plt.text(2.2, 4500, "= 0.077 (eV)",      **tfont, weight='bold', fontsize=24, color='0')
     # plt.text(1.03, 2300, "= 0.082 (eV)",      **tfont, weight='bold', fontsize=24, color='0')
     plt.text(1.7, 1900, "R$^2$",              **tfont, weight='bold', fontsize=24, color='0')
     # plt.text(0.8, 1000, "R$^2$",              **tfont, weight='bold', fontsize=24, color='0')
     plt.text(2.2, 1900, "= 0.992",           **tfont, weight='bold', fontsize=24, color='0')
     # plt.text(1.03, 1000, "= 0.946",           **tfont, weight='bold', fontsize=24, color='0')
-    # plt.title("rs = 36, k = 5, n = 1", **tfont, weight='bold', fontsize=26)
+    # plt.title("rs = 29, k = 5, n = 1", **tfont, weight='bold', fontsize=26)
     # plt.title("rs = 7, k = 5, n = 1", **tfont, weight='bold', fontsize=26)
-    plt.show()
-    # plt.savefig('/Users/torbenvilladsen/Library/Mobile Documents/com~apple~CloudDocs/Skole/7. semester/Bachelor projekt/Python/mono_BE_final3_low.pdf', bbox_inches='tight')
+    # plt.show()
+    plt.savefig('/Users/torbenvilladsen/Library/Mobile Documents/com~apple~CloudDocs/Skole/7. semester/Bachelor projekt/Python/mono_BE_final3.pdf', bbox_inches='tight')
 
 else:
     data = np.load(r'GPRmulti.npy', allow_pickle=True)
