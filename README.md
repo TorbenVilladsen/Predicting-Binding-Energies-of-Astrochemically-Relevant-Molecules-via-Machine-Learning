@@ -14,15 +14,9 @@ If changes to the `Data_set_BEs.xlsx` file is made the `SMILESmono.txt` and `SMI
 The dependencies used for this project is:
 
 `python       3.9.7`
-
 `numpy        1.21.4`
-
 `matplotlib   3.5.0`
-
 `pandas       1.3.4`
-
 `rdkit        2021.09.2`
-
 `scikit-learn 1.0.1`
-
 `urllib       1.26.7`
